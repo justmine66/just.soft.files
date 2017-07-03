@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大文件-分段上传-断点续传-测试页面</title>
+    <link href="Content/Site.css" rel="stylesheet" />
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <form>
+            <div class="form-group">
+                <label for="exampleInputFile">大文件-分段上传-断点续传-demo</label>
+                <input type="file" id="file1" accept="*">
+                <p class="help-block">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped"
+                             role="progressbar"
+                             aria-valuenow="0"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="vertical-align:central; padding-top:2px;">
+                            <span class="sr-only" style="position:unset;"></span>
+                        </div>
+                    </div>
+                </p>
+            </div>
+            <button type="button" class="btn btn-default" id="upload">开始上传</button>
+            <button type="button" class="btn btn-default" id="stop">暂停上传</button>
+        </form>
+    </div>
+</body>
+</html>
+<script src="Scripts/jquery-1.10.2.min.js"></script>
+<script src="Scripts/bootstrap.js"></script>
+<script src="Scripts/ajax-dev/ajax.1.5.2.js"></script>
+<script>
+    (function () {
+        document.querySelector("#upload").onclick = function () {
+            var temp = ajax.upload_big(
+                "http://localhost:30015/upload5",//文件上传地址
+                "#file1", //input = file 选择器
+                1024 * 1024,//切割文件大小
+                "*",//文件限制类型 mime类型
+                function (index) {//上传成功事件
+                    //console.log("slice [ " + index + "] uploaded")
+                },
+                function (index, length) {//上传进度事件
+                    console.log(index + "/" + length);
+                    var ratio = (index / length) * 100.00 | 0.00;
+                    var progress = $(".progress > div");
+                    progress.css("width", ratio + "%");
+                    progress.attr("aria-valuenow", index);
+                    progress.attr("aria-valuemax", length);
+                    progress.children("span").text("" + ratio + "%");
+                },
+                function (index, length) {//超时处理事件
+                    console.log(index + "/" + length);
+                }
+            )
+            console.log(temp);
+        };
+    })();
+</script>
